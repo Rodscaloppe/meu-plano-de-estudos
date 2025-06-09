@@ -1,392 +1,742 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roteiro de Estudos CTFL - Dinâmico e Detalhado</title>
-    
-    <!-- Tailwind CSS para estilização -->
+    <title>Plano de Estudos Dinâmico - CTFL (Detalhado)</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Feather Icons para ícones -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    
-    <!-- Google Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f7f9;
-            color: #334155; /* slate-700 */
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
         }
 
-        /* --- Estilos e Animações --- */
-        
-        /* Cartão do dia na navegação */
-        .day-card {
+        .stepper-item {
+            position: relative;
+            padding-left: 40px;
+            padding-bottom: 24px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .stepper-item:not(.active) {
+            opacity: 0.7;
+        }
+
+        .stepper-item:hover:not(.active) {
+            opacity: 1;
+        }
+
+        .stepper-item::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 11px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            border: 3px solid #ced4da;
+            z-index: 1;
             transition: all 0.3s ease;
-            border-left-width: 4px;
         }
 
-        .day-card.active {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            border-left-color: #4f46e5; /* indigo-600 */
-        }
-        
-        .day-card:not(.active):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            border-left-color: #a5b4fc; /* indigo-300 */
+        .stepper-item.completed::before {
+            background-color: #198754;
+            border-color: #198754;
         }
 
-        /* Conteúdo do Acordeão (Tópicos) */
-        .accordion-content {
-            display: none;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+        .stepper-item.active::before {
+            border-color: #0d6efd;
+            transform: scale(1.2);
         }
-        
-        .accordion-button.open .accordion-arrow {
-            transform: rotate(90deg);
+
+        .stepper-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 29px;
+            width: 2px;
+            height: 100%;
+            background-color: #dee2e6;
         }
-        
-        /* Animação de Fade-in para o conteúdo principal */
-        #content-area {
-            animation: fadeIn 0.6s ease-in-out;
+
+        #content-panel > div {
+            animation: fadeIn 0.5s ease-in-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .progress-bar-inner {
+            transition: width 0.5s ease-in-out;
+        }
+
+        .topic-card {
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .topic-card h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .topic-card p, .topic-card ul {
+            margin-top: 0.75rem;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .topic-card ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+       .topic-card ul ul {
+            list-style-type: circle;
+            margin-top: 0.5rem;
+        }
+        .topic-card .action-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border: 1px dashed #d1d5db;
+            border-radius: 0.5rem;
+        }
+        .topic-card .action-box h5 {
+            font-weight: 600;
+            color: #374151;
+        }
+
     </style>
 </head>
-
 <body class="antialiased">
 
-    <div class="max-w-screen-2xl mx-auto p-4 md:p-8">
-        
-        <header class="mb-10 text-center">
-            <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-800">Plano de Estudos CTFL</h1>
-            <p class="text-lg text-slate-600 mt-2">Sua jornada interativa e detalhada para a certificação</p>
-        </header>
+<div class="max-w-screen-xl mx-auto p-4 md:p-6 lg:p-8">
 
-        <!-- Layout Principal: Navegação e Conteúdo -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Coluna de Navegação Lateral -->
-            <aside class="lg:col-span-4 xl:col-span-3">
-                 <div class="bg-white p-6 rounded-2xl shadow-sm h-full sticky top-8">
-                    <h3 class="text-2xl font-bold text-slate-700 mb-6">Linha do Tempo</h3>
-                    <div id="days-nav" class="space-y-3">
-                        <!-- Cards de navegação dos dias serão injetados aqui pelo JavaScript -->
-                    </div>
+    <header class="mb-8 text-center">
+        <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-800">Seu Roteiro Detalhado para a Certificação CTFL</h1>
+        <p class="text-lg text-gray-600 mt-2">Um plano de estudos interativo e aprofundado para guiar sua jornada</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Seu Progresso</h2>
+            <div class="w-full bg-gray-200 rounded-full h-8">
+                <div id="progress-bar-inner" class="progress-bar-inner bg-gradient-to-r from-blue-500 to-teal-400 h-8 rounded-full flex items-center justify-center text-white font-bold">
+                    0%
                 </div>
-            </aside>
-            
-            <!-- Coluna do Painel de Conteúdo Principal -->
-            <main id="content-area" class="lg:col-span-8 xl:col-span-9">
-                <!-- O conteúdo detalhado do dia selecionado será injetado aqui pelo JavaScript -->
-            </main>
-            
+            </div>
+            <p class="text-sm text-gray-500 mt-2 text-center">Marque os dias como concluídos para ver seu progresso!</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
+            <div class="w-full h-64 lg:h-full">
+                <canvas id="focusChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <script>
-        // --- BANCO DE DADOS DO PLANO DE ESTUDOS ---
-        // Todo o conteúdo foi extraído do arquivo HTML e estruturado em JavaScript para fácil manipulação.
-        const studyPlanData = {
-            days: [
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <aside class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-bold text-gray-700 mb-6">Etapas do Plano</h3>
+            <nav id="timeline-nav"></nav>
+        </aside>
+
+        <main id="content-panel" class="lg:col-span-3 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200 min-h-[500px]"></main>
+    </div>
+</div>
+
+<script>
+const studyPlanData = {
+    chapters: {
+        "1": "Fundamentos",
+        "2": "Teste no Ciclo de Vida",
+        "3": "Teste Estático",
+        "4": "Técnicas de Teste",
+        "5": "Gerenciamento de Teste",
+        "6": "Ferramentas de Teste"
+    },
+    days: [
+        {
+            dia: 1,
+            titulo: "Os Alicerces do Teste",
+            capitulos: ["1"],
+            tipo: "conteudo",
+            topicos: [
                 {
-                    dia: 1,
-                    titulo: "Os Alicerces do Teste",
-                    foco: "Capítulo 1 - Fundamentos (1.1, 1.2, 1.3)",
-                    topicos: [
-                        {
-                            titulo: "O que é teste? Desvendando o Conceito",
-                            objetivos: "FL-1.1.1 (K1), FL-1.1.2 (K2)",
-                            explicacao: `<p><strong>Intuição e Definição:</strong> Testar é como verificar se uma caneta funciona antes de comprar. No software, é um processo para descobrir <strong>defeitos</strong> e avaliar a <strong>qualidade</strong> (funciona?, é seguro?, rápido?, fácil de usar?).</p><p class="mt-2"><strong>Verificação vs. Validação:</strong></p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Verificação:</strong> "Estamos construindo o produto <strong>corretamente</strong>?" (conforme as especificações?).</li><li><strong>Validação:</strong> "Estamos construindo o <strong>produto certo</strong>?" (atende às necessidades do usuário?).</li></ul><p class='mt-2'><strong>Objetivos Típicos (O Porquê):</strong> Avaliar requisitos e design, detectar falhas, garantir cobertura, reduzir riscos, verificar conformidade legal, fornecer informações para decisões e criar confiança.</p><p class='mt-2'><strong>Teste vs. Depuração:</strong> Teste <strong>encontra</strong> defeitos (identifica os sintomas). Depuração (Debugging), feita pelo desenvolvedor, <strong>corrige</strong> os defeitos (encontra a causa e aplica a cura).</p>`
-                        },
-                        {
-                            titulo: "Por que os testes são necessários?",
-                            objetivos: "FL-1.2.1 (K2), FL-1.2.2 (K1), FL-1.2.3 (K2)",
-                            explicacao: `<p><strong>O Impacto da Falta de Testes:</strong> Falhas em software podem causar perda de dinheiro, tempo, reputação e, em casos extremos, danos físicos. Testar reduz o risco dessas consequências.</p><p class='mt-2'><strong>A Hierarquia da Qualidade:</strong></p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>QA (Garantia da Qualidade):</strong> Focado em <strong>processos</strong> para <strong>prevenir</strong> defeitos.</li><li><strong>QC (Controle de Qualidade):</strong> Focado no <strong>produto</strong> para <strong>detectar</strong> defeitos. O teste é a principal atividade de QC.</li></ul><p class='mt-2'><strong>A Anatomia de um Problema:</strong></p><ol class='list-decimal pl-5 mt-2 space-y-1'><li><strong>Erro (Humano):</strong> Uma pessoa comete um engano (ex: usa '>' em vez de '>=').</li><li><strong>Defeito (Bug):</strong> O erro fica registrado no código ou documento.</li><li><strong>Falha:</strong> O defeito se manifesta quando o software é executado, causando comportamento incorreto.</li><li><strong>Causa Raiz:</strong> O motivo fundamental que levou ao erro (ex: requisito ambíguo, pressão de prazo).</li></ol>`
-                        },
-                        {
-                            titulo: "Os 7 Princípios de Teste",
-                            objetivos: "FL-1.3.1 (K2)",
-                            explicacao: `<p>As leis universais que guiam a atividade de teste.</p><ol class='list-decimal pl-5 mt-2 space-y-2'><li><strong>Teste mostra a presença de defeitos, não a ausência:</strong> Encontrar defeitos prova que eles existem. Não encontrar defeitos não prova que eles não existem.</li><li><strong>Testes exaustivos são impossíveis:</strong> É impraticável testar todas as combinações. Por isso, usamos análise de risco e técnicas inteligentes.</li><li><strong>Testes antecipados economizam tempo e dinheiro (Shift-Left):</strong> Encontrar um defeito em um requisito é muito mais barato de corrigir do que em produção.</li><li><strong>Defeitos se agrupam (Clustering):</strong> A maioria dos defeitos tende a se concentrar em poucas áreas do sistema.</li><li><strong>Testes se degradam (Paradoxo do Pesticida):</strong> Repetir os mesmos testes se torna menos eficaz para encontrar <em>novos</em> defeitos. É preciso atualizar e criar novos testes.</li><li><strong>Testes dependem do contexto:</strong> A abordagem de teste para um e-commerce é diferente da de um software médico.</li><li><strong>Falácia da ausência de defeitos:</strong> Um software sem defeitos pode ser inútil se não atender às necessidades do usuário.</li></ol>`
-                        }
-                    ]
+                    titulo: "O Que é Teste?",
+                    desc: `
+                        <p>Identificar objetivos típicos de teste e diferenciar teste de depuração. Foco em Verificação vs. Validação e os 9 objetivos principais.</p>
+                        <ul>
+                            <li><strong>Objetivos de Aprendizagem:</strong> FL-1.1.1 (K1) e FL-1.1.2 (K2).</li>
+                            <li><strong>Explicação:</strong> Teste é um conjunto de atividades para descobrir defeitos e avaliar a qualidade. Qualidade abrange funcionalidade, segurança, desempenho e usabilidade. Não é apenas executar o software, mas um processo que inclui planejamento, análise, execução e relatórios.
+                                <ul>
+                                    <li><strong>Verificação:</strong> "Estamos construindo o produto certo?" (conforme as especificações).</li>
+                                    <li><strong>Validação:</strong> "Estamos construindo o produto certo para o usuário?" (atende às necessidades reais).</li>
+                                </ul>
+                            </li>
+                            <li><strong>Teste vs. Depuração:</strong> Teste encontra defeitos; depuração (geralmente feita por desenvolvedores) analisa e remove a causa do defeito.</li>
+                            <li class="action-box">
+                                <h5>Ação:</h5>
+                                <p>Pense em um aplicativo que você usa. Escolha 3 objetivos de teste e explique como se aplicariam a ele. Crie um cenário que diferencie o papel do testador e do desenvolvedor na depuração de uma falha.</p>
+                            </li>
+                        </ul>
+                    `
                 },
                 {
-                    dia: 2,
-                    titulo: "A Mão na Massa do Testador",
-                    foco: "Capítulo 1 (conclusão) & Capítulo 2 (início)",
-                    topicos: [
-                        {
-                            titulo: "Atividades, Testware e Papéis",
-                            objetivos: "FL-1.4.1 a FL-1.4.5",
-                            explicacao: `<p><strong>O Processo de Teste:</strong> Não é só executar. É um ciclo que inclui:</p><ol class='list-decimal pl-5 mt-2 space-y-1'><li><strong>Planejamento:</strong> Definir objetivos, escopo e estratégia.</li><li><strong>Monitoramento e Controle:</strong> Acompanhar o progresso e tomar ações corretivas.</li><li><strong>Análise:</strong> Estudar os requisitos para identificar <em>o que</em> testar.</li><li><strong>Modelagem (Design):</strong> Projetar <em>como</em> testar, criando casos de teste.</li><li><strong>Implementação:</strong> Preparar o ambiente e os scripts.</li><li><strong>Execução:</strong> Rodar os testes e registrar os resultados.</li><li><strong>Conclusão:</strong> Resumir os resultados e as lições aprendidas.</li></ol><p class='mt-2'><strong>Testware:</strong> São os artefatos do teste (planos, casos, scripts, relatórios). A <strong>Rastreabilidade</strong> conecta esses artefatos aos requisitos, garantindo cobertura.</p><p class='mt-2'><strong>Papéis:</strong> <strong>Gerente de Teste</strong> (lidera e planeja) e <strong>Testador</strong> (analisa, projeta e executa).</p>`
-                        },
-                        {
-                            titulo: "Habilidades Essenciais e Boas Práticas",
-                            objetivos: "FL-1.5.1 a FL-1.5.3",
-                            explicacao: `<p><strong>Habilidades do Testador:</strong> Curiosidade, pensamento crítico, atenção aos detalhes e excelente comunicação.</p><p class='mt-2'><strong>Abordagem de Equipe Completa (Whole Team Approach):</strong> A qualidade é responsabilidade de <strong>todos</strong>, promovendo colaboração.</p><p class='mt-2'><strong>Independência dos Testes:</strong> Ter testes feitos por pessoas que não desenvolveram o código.</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Benefícios:</strong> Encontra mais defeitos por evitar o "viés do criador".</li><li><strong>Desvantagens:</strong> Pode criar isolamento ("nós vs. eles"). O ideal é um balanço.</li></ul>`
-                        },
-                        {
-                            titulo: "Testes no Contexto do SDLC",
-                            objetivos: "FL-2.1.1 a FL-2.1.4",
-                            explicacao: `<p>O modelo de desenvolvimento (SDLC) impacta diretamente os testes.</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Sequencial (Cascata):</strong> Teste é uma fase no final.</li><li><strong>Iterativo/Incremental (Ágil):</strong> Teste ocorre em todas as iterações, junto com o desenvolvimento.</li></ul><p class='mt-2'><strong>Abordagens "Test-First":</strong></p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>TDD (Test-Driven Development):</strong> Escreve-se o teste <em>antes</em> do código de produção.</li><li><strong>ATDD (Acceptance Test-Driven Development):</strong> O time colabora nos testes de aceite <em>antes</em> da implementação.</li><li><strong>BDD (Behavior-Driven Development):</strong> Evolução do ATDD usando linguagem natural (Given/When/Then).</li></ul><p class='mt-2'><strong>DevOps:</strong> A automação de testes é crucial para a pipeline de <strong>Integração Contínua (CI)</strong> e <strong>Entrega/Implantação Contínua (CD)</strong>, fornecendo feedback rápido.</p>`
-                        }
-                    ]
+                    titulo: "Por Que os Testes São Necessários?",
+                    desc: `
+                        <p>Compreender o impacto das falhas de software e a relação entre Teste, QC e QA. Distinguir entre Erro, Defeito, Falha e Causa Raiz.</p>
+                        <ul>
+                            <li><strong>Objetivos de Aprendizagem:</strong> FL-1.2.1 (K2), FL-1.2.2 (K1), FL-1.2.3 (K2).</li>
+                            <li><strong>Impacto:</strong> Falhas podem causar perdas financeiras, de tempo, danos à reputação e, em casos extremos, lesões ou morte. Testes reduzem esses riscos.</li>
+                            <li><strong>QA vs. QC vs. Teste:</strong>
+                                <ul>
+                                    <li><strong>QA (Garantia da Qualidade):</strong> Focado em PROCESSOS para prevenir defeitos.</li>
+                                    <li><strong>QC (Controle de Qualidade):</strong> Focado no PRODUTO para detectar defeitos. O Teste é a principal atividade de QC.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Anatomia de um Problema:</strong> Causa Raiz → Erro (humano) → Defeito (no código/documento) → Falha (manifestação visível).</li>
+                             <li class="action-box">
+                                <h5>Ação:</h5>
+                                <p>Crie seu próprio cenário que ilustre a sequência: Causa Raiz → Erro → Defeito → Falha. (Ex: Requisito ambíguo leva a um erro de lógica do programador, que gera um defeito no código, resultando em uma falha de cálculo para o usuário).</p>
+                            </li>
+                        </ul>
+                    `
                 },
                 {
-                    dia: 3,
-                    titulo: "Níveis, Tipos e Manutenção",
-                    foco: "Capítulo 2 (conclusão) & 3 (início)",
-                    topicos: [
-                        {
-                            titulo: "Níveis vs. Tipos de Teste",
-                            objetivos: "FL-2.2.1, FL-2.2.2",
-                            explicacao: `<p>É crucial não confundir "níveis" com "tipos".</p><p class="mt-2"><strong>NÍVEIS de Teste (Onde e Quando):</strong></p><ol class='list-decimal pl-5 mt-2 space-y-1'><li><strong>Componente (Unidade):</strong> Testa a menor parte isolada do código.</li><li><strong>Integração:</strong> Testa a comunicação entre componentes ou sistemas.</li><li><strong>Sistema:</strong> Testa o sistema completo em relação aos requisitos.</li><li><strong>Aceite:</strong> Valida se o sistema atende às necessidades do negócio e do usuário (UAT).</li></ol><p class="mt-2"><strong>TIPOS de Teste (O que focamos):</strong></p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Funcional:</strong> "O que" o sistema faz.</li><li><strong>Não Funcional:</strong> "Como" o sistema funciona (performance, usabilidade, segurança).</li><li><strong>Caixa-Branca:</strong> Baseado no conhecimento da estrutura interna (código).</li><li><strong>Caixa-Preta:</strong> Baseado nos requisitos, sem conhecimento do código.</li></ul>`
-                        },
-                        {
-                            titulo: "Confirmação vs. Regressão",
-                            objetivos: "FL-2.2.3",
-                            explicacao: `<p>Dois tipos de teste cruciais após uma mudança no código.</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Teste de Confirmação (Re-teste):</strong> Verifica se um defeito que foi corrigido <strong>realmente foi resolvido</strong>. Foco específico no bug original.</li><li><strong>Teste de Regressão:</strong> Verifica se a mudança (correção de bug ou nova funcionalidade) <strong>não quebrou algo que já funcionava</strong> em outras partes do sistema. Foco em efeitos colaterais indesejados.</li></ul>`
-                        },
-                        {
-                            titulo: "Teste de Manutenção",
-                            objetivos: "FL-2.3.1",
-                            explicacao: `<p>Teste que ocorre <strong>após</strong> o software ser lançado para produção. Os principais motivos (acionadores) para este teste são:</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Modificações:</strong> Correções de bugs, melhorias ou adaptações a novas tecnologias.</li><li><strong>Migrações:</strong> Mover o software para um novo ambiente (ex: novo servidor, nuvem).</li><li><strong>Desativação (Retirement):</strong> Testar se os dados podem ser arquivados e recuperados corretamente quando o sistema for "aposentado".</li></ul>`
-                        }
-                    ]
-                },
-                {
-                    dia: 4,
-                    titulo: "Teste Estático e Técnicas Iniciais",
-                    foco: "Capítulo 3 (conclusão) & 4 (início)",
-                    topicos: [
-                        {
-                            titulo: "Fundamentos e Processo de Teste Estático",
-                            objetivos: "FL-3.1.1 a FL-3.2.5",
-                            explicacao: `<p><strong>Teste Estático</strong> é a análise de documentos ou código <strong>sem executar o software</strong>. Seu principal valor é a <strong>detecção antecipada</strong> de defeitos, o que é muito mais barato.</p><p class="mt-2">O <strong>Processo de Revisão</strong> é a forma manual de fazer teste estático e segue etapas:</p><ol class='list-decimal pl-5 mt-2 space-y-1'><li>Planejamento</li><li>Início (Kick-off)</li><li>Preparação Individual</li><li>Reunião de Revisão</li><li>Retrabalho (Correção)</li><li>Acompanhamento (Follow-up)</li></ol><p class="mt-2">Os tipos de revisão variam em formalidade, da <strong>Revisão Informal</strong> até a <strong>Inspeção</strong>, que é a mais rigorosa.</p>`
-                        },
-                        {
-                            titulo: "Particionamento de Equivalência (EP)",
-                            objetivos: "FL-4.2.1",
-                            explicacao: `<p>É uma técnica de teste caixa-preta para reduzir o número de casos de teste. A ideia é dividir todas as entradas possíveis em <strong>partições</strong> (grupos) onde o sistema deve se comportar da mesma forma.</p><p class="mt-2">Para um campo "idade" que aceita de 18 a 60 anos, teríamos:</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Partição Válida:</strong> Qualquer número entre 18 e 60 (ex: 35).</li><li><strong>Partição Inválida 1:</strong> Números menores que 18 (ex: 10).</li><li><strong>Partição Inválida 2:</strong> Números maiores que 60 (ex: 70).</li></ul><p class='mt-2'>Basta um teste para cada partição.</p>`
-                        },
-                        {
-                            titulo: "Análise de Valor Limite (BVA)",
-                            objetivos: "FL-4.2.2",
-                            explicacao: `<p>Extensão do Particionamento de Equivalência. A experiência mostra que os defeitos ocorrem com mais frequência nas <strong>fronteiras</strong> (limites) das partições.</p><p class="mt-2">Para o mesmo campo de idade (18 a 60), os limites são 18 e 60. Usando BVA de 3 valores, testaríamos:</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Limite inferior:</strong> 17 (inválido), 18 (válido), 19 (válido).</li><li><strong>Limite superior:</strong> 59 (válido), 60 (válido), 61 (inválido).</li></ul>`
-                        }
-                    ]
-                },
-                {
-                    dia: 5,
-                    titulo: "Aprofundando nas Técnicas",
-                    foco: "Capítulo 4 (continuação)",
-                    topicos: [
-                        {
-                            titulo: "Tabela de Decisão",
-                            objetivos: "FL-4.2.3",
-                            explicacao: `<p>Ideal para testar <strong>regras de negócio complexas</strong> que dependem de múltiplas condições. A técnica envolve criar uma tabela com todas as combinações de condições (entradas) e as ações resultantes (saídas).</p><p class="mt-2">Cada coluna da tabela representa uma <strong>regra de negócio</strong> e se torna um caso de teste. Isso garante cobertura sistemática de todas as combinações lógicas e ajuda a encontrar lacunas nas especificações.</p>`
-                        },
-                        {
-                            titulo: "Teste de Transição de Estado",
-                            objetivos: "FL-4.2.4",
-                            explicacao: `<p>Perfeito para sistemas que mudam de <strong>estado</strong> em resposta a <strong>eventos</strong> (ex: um carrinho de compras, um login, um semáforo).</p><p class="mt-2">Modelamos o sistema com um <strong>diagrama de transição de estado</strong> (círculos para estados, setas para transições/eventos). Os casos de teste são criados para percorrer os caminhos do diagrama, garantindo que todas as transições válidas (e idealmente, as inválidas) sejam testadas.</p>`
-                        },
-                        {
-                            titulo: "Teste Caixa-Branca",
-                            objetivos: "FL-4.3.1 a FL-4.3.3",
-                            explicacao: `<p>Técnicas baseadas na estrutura interna do código. O objetivo é medir a <strong>cobertura</strong>.</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Cobertura de Instrução (Statement):</strong> Cada linha de código executável é executada ao menos uma vez?</li><li><strong>Cobertura de Ramificação (Branch/Decision):</strong> Cada resultado possível de uma decisão (o 'verdadeiro' e o 'falso' de um IF) é executado ao menos uma vez?</li></ul><p class="mt-2">100% de cobertura de ramificação é mais forte e geralmente implica 100% de cobertura de instrução.</p>`
-                        }
-                    ]
-                },
-                {
-                    dia: 6,
-                    titulo: "Intuição, Colaboração e Gerenciamento",
-                    foco: "Capítulo 4 (conclusão) & 5 (início)",
-                    topicos: [
-                        {
-                            titulo: "Técnicas Baseadas na Experiência",
-                            objetivos: "FL-4.4.1 a FL-4.4.3",
-                            explicacao: `<p>Usa a habilidade e intuição do testador.</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Suposição de Erros (Error Guessing):</strong> "Adivinhar" onde os erros podem ocorrer com base na experiência (ex: campos vazios, divisão por zero).</li><li><strong>Teste Exploratório:</strong> Aprendizado, projeto e execução de testes ocorrem simultaneamente. É estruturado com <strong>Cartas de Teste</strong> em <strong>Testes Baseados em Sessão</strong>.</li><li><strong>Teste Baseado em Lista de Verificação (Checklist):</strong> Usar uma lista de itens a serem verificados, baseada em experiência ou padrões.</li></ul>`
-                        },
-                        {
-                            titulo: "Abordagens Colaborativas",
-                            objetivos: "FL-4.5.1 a FL-4.5.3",
-                            explicacao: `<p>Foco em construir qualidade em equipe.</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Histórias de Usuário (User Stories):</strong> Descrições curtas de funcionalidades (Como um..., quero..., para que...). Os <strong>3 C's</strong> (Cartão, Conversação, Confirmação) e o acrônimo <strong>INVEST</strong> guiam sua criação.</li><li><strong>Critérios de Aceite (AC):</strong> As condições que definem que uma história está "pronta". Podem ser escritos em formato de cenário (<strong>Given/When/Then</strong>) ou regras.</li><li><strong>ATDD (Acceptance Test-Driven Development):</strong> O time define os testes de aceite (baseados nos ACs) <strong>antes</strong> da implementação, guiando o desenvolvimento.</li></ul>`
-                        },
-                        {
-                            titulo: "Planejamento de Teste",
-                            objetivos: "FL-5.1.1 a FL-5.1.3",
-                            explicacao: `<p>O <strong>Plano de Teste</strong> é o documento que guia o esforço de teste, definindo escopo, abordagem, recursos, riscos, etc.</p><p class="mt-2">Crucialmente, ele define:</p><ul class='list-disc pl-5 mt-2 space-y-1'><li><strong>Critérios de Entrada:</strong> Condições para <strong>começar</strong> os testes (ex: ambiente pronto).</li><li><strong>Critérios de Saída:</strong> Condições para <strong>terminar</strong> os testes (ex: 95% dos casos de teste executados, nenhum defeito crítico em aberto).</li></ul>`
-                        }
-                    ]
-                },
-                {
-                    dia: 7,
-                    titulo: "Gerenciamento Avançado e Ferramentas",
-                    foco: "Capítulo 5 (conclusão) & 6",
-                    topicos: [
-                        {
-                            titulo: "Estimativa, Priorização e Modelos Visuais",
-                            objetivos: "FL-5.1.4 a FL-5.1.7",
-                            explicacao: `<p><strong>Estimativa de Esforço:</strong> Técnicas como <strong>Planning Poker</strong> (Ágil) e <strong>Wideband Delphi</strong> ajudam a prever o trabalho de teste.</p><p class="mt-2"><strong>Pirâmide de Teste:</strong> Modelo visual para estratégia de automação que prioriza <strong>muitos</strong> testes de unidade (base), <strong>alguns</strong> de integração/API (meio) e <strong>poucos</strong> de UI (topo).</p><p class="mt-2"><strong>Quadrantes de Teste:</strong> Modelo que ajuda a garantir cobertura completa, classificando testes em 4 quadrantes baseados no foco (Negócio vs. Tecnologia) e propósito (Apoiar o Time vs. Criticar o Produto).</p>`
-                        },
-                        {
-                            titulo: "Gerenciamento de Riscos e Monitoramento",
-                            objetivos: "FL-5.2.1 a FL-5.3.3",
-                            explicacao: `<p><strong>Risco</strong> = Probabilidade x Impacto. Teste é a principal forma de <strong>mitigação</strong> de riscos de produto (problemas de qualidade). O progresso é monitorado com <strong>métricas</strong> (ex: cobertura, densidade de defeitos) e comunicado em <strong>Relatórios de Teste</strong>.</p>`
-                        },
-                        {
-                            titulo: "Gerenciamento de Defeitos e Ferramentas",
-                            objetivos: "FL-5.4.1, FL-5.5.1, FL-6.1.1, FL-6.2.1",
-                            explicacao: `<p><strong>Gerenciamento de Configuração (CM)</strong> garante que estamos testando a versão correta de tudo. Um <strong>Relatório de Defeito</strong> deve ser claro e reprodutível. Lembre-se: <strong>Severidade</strong> (impacto técnico) é diferente de <strong>Prioridade</strong> (urgência de negócio).</p><p class="mt-2"><strong>Ferramentas de Teste</strong> apoiam todas as atividades. A <strong>automação</strong> traz benefícios (velocidade) mas também riscos (custo de manutenção).</p>`
-                        }
-                    ]
-                },
-                {
-                    dia: "R1",
-                    titulo: "Revisão e Prática 1",
-                    foco: "Revisão dos Capítulos 1, 2, 3 e 4",
-                    topicos: [
-                        {
-                            titulo: "Revisão dos Alicerces",
-                            objetivos: "Capítulos 1, 2, 3",
-                            explicacao: "Passe por todos os conceitos fundamentais dos Capítulos 1, 2 e 3. Garanta que os 7 princípios, os níveis vs. tipos, e o processo de revisão estejam claros. Use flashcards e resumos para fixar o conteúdo."
-                        },
-                        {
-                            titulo: "Prática Intensiva de Técnicas",
-                            objetivos: "Capítulo 4",
-                            explicacao: "Esta é a parte mais importante. Gaste tempo resolvendo exercícios práticos de Particionamento de Equivalência, Análise de Valor Limite, Tabela de Decisão e Transição de Estado. Procure por simulados que contenham questões aplicadas dessas técnicas."
-                        },
-                        {
-                            titulo: "Simulado Parcial",
-                            objetivos: "Autoavaliação",
-                            explicacao: "Faça um mini simulado com questões focadas nos capítulos 1-4 para identificar pontos fracos e áreas que precisam de mais atenção antes da revisão final."
-                        }
-                    ]
-                },
-                {
-                    dia: "R2",
-                    titulo: "Revisão e Prática 2",
-                    foco: "Revisão dos Capítulos 5, 6 e Simulado Final",
-                    topicos: [
-                        {
-                            titulo: "Revisão de Gerenciamento e Ferramentas",
-                            objetivos: "Capítulos 5 e 6",
-                            explicacao: "Solidifique os conceitos de Planejamento, Riscos, Métricas, Relatórios e o Ciclo de Vida de um Defeito (incluindo Severidade vs. Prioridade). Relembre os benefícios e riscos da automação e os tipos de Ferramentas."
-                        },
-                        {
-                            titulo: "Simulado Completo e Análise",
-                            objetivos: "Preparação para o Exame",
-                            explicacao: "Realize um simulado completo de 40 questões no tempo oficial. O mais importante é corrigir <strong>cada</strong> questão, entendendo por que errou e por que as outras opções estavam incorretas. Revise o tópico correspondente no syllabus para cada erro."
-                        }
-                    ]
+                    titulo: "Sete Princípios de Teste",
+                    desc: `
+                        <p>Internalizar as 7 leis universais que guiam toda a atividade de teste.</p>
+                        <ul>
+                            <li><strong>Objetivo de Aprendizagem:</strong> FL-1.3.1 (K2).</li>
+                            <li><strong>Os 7 Princípios:</strong>
+                                <ol class="list-decimal pl-5">
+                                    <li>Teste mostra a presença de defeitos, não a ausência.</li>
+                                    <li>Testes exaustivos são impossíveis.</li>
+                                    <li>Testes antecipados economizam tempo e dinheiro (Shift-Left).</li>
+                                    <li>Defeitos se agrupam (Clustering).</li>
+                                    <li>Testes se degradam (Paradoxo do Pesticida).</li>
+                                    <li>Testes dependem do contexto.</li>
+                                    <li>Falácia da ausência de defeitos.</li>
+                                </ol>
+                            </li>
+                             <li class="action-box">
+                                <h5>Ação:</h5>
+                                <p>Para cada um dos 7 princípios, reescreva-o com suas próprias palavras e pense em uma analogia da vida real que o ilustre.</p>
+                            </li>
+                        </ul>
+                    `
                 }
             ]
-        };
+        },
+        {
+            dia: 2,
+            titulo: "A Mão na Massa e a Dança com o Desenvolvimento",
+            capitulos: ["1", "2"],
+            tipo: "conteudo",
+            topicos: [
+                {
+                    titulo: "Atividades, Testware e Papéis",
+                    desc: `
+                        <p>Entender o processo de teste (Planejamento, Análise, Modelagem, Execução, etc.), o que é 'testware' e os papéis de Gerente de Teste e Testador.</p>
+                        <ul>
+                            <li><strong>Atividades de Teste:</strong> Planejamento, Monitoramento e Controle, Análise, Modelagem, Implementação, Execução e Conclusão.</li>
+                            <li><strong>Testware:</strong> Artefatos produzidos para o teste, como Planos de Teste, Casos de Teste, Scripts, Relatórios de Defeitos, etc.</li>
+                            <li><strong>Rastreabilidade:</strong> Capacidade de conectar requisitos a casos de teste e a defeitos, garantindo cobertura e análise de impacto.</li>
+                            <li><strong>Papéis:</strong> Gerente de Teste (lidera, planeja, gerencia) e Testador (analisa, modela, executa).</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Habilidades e Boas Práticas",
+                    desc: `
+                        <p>Reconhecer as habilidades de um testador e os prós e contras da independência dos testes vs. abordagem de equipe completa.</p>
+                        <ul>
+                            <li><strong>Habilidades Essenciais:</strong> Curiosidade, pensamento crítico, atenção aos detalhes, boa comunicação, conhecimento do negócio e técnico.</li>
+                            <li><strong>Abordagem de Equipe Completa (Whole Team Approach):</strong> A qualidade é responsabilidade de todos no time (comum em Ágil).</li>
+                            <li><strong>Independência dos Testes:</strong> Testes feitos por alguém que não desenvolveu o software.
+                                <ul>
+                                    <li><strong>Benefícios:</strong> Encontra mais defeitos por não ter os mesmos "pontos cegos" (bias cognitivo) do desenvolvedor.</li>
+                                    <li><strong>Desvantagens:</strong> Pode criar isolamento, gargalos e um sentimento de "nós contra eles".</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Testes no Contexto do SDLC",
+                    desc: `
+                        <p>Analisar como os testes se encaixam em modelos Sequenciais e Iterativos, e introduzir abordagens 'Test-First' como TDD, ATDD e BDD.</p>
+                        <ul>
+                            <li><strong>SDLC:</strong> A escolha do ciclo de vida de desenvolvimento (Cascata, Ágil) impacta quando e como testamos.</li>
+                            <li><strong>Abordagens "Test-First":</strong>
+                                <ul>
+                                    <li><strong>TDD (Test-Driven Development):</strong> O teste de unidade é escrito ANTES do código de produção.</li>
+                                    <li><strong>ATDD (Acceptance Test-Driven Development):</strong> O time colabora para criar testes de aceite ANTES da implementação.</li>
+                                    <li><strong>BDD (Behavior-Driven Development):</strong> Usa uma linguagem natural (Given/When/Then) para descrever o comportamento, facilitando a colaboração e automação.</li>
+                                </ul>
+                            </li>
+                            <li><strong>DevOps:</strong> Foco em Integração Contínua (CI) e Entrega/Implantação Contínua (CD), exigindo muita automação de testes para feedback rápido.</li>
+                             <li class="action-box">
+                                <h5>Ação:</h5>
+                                <p>Compare o papel do testador em um modelo Cascata vs. um projeto Ágil que usa TDD e CI/CD. Liste 3 benefícios de usar ATDD.</p>
+                            </li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        {
+            dia: 3,
+            titulo: "Níveis e Tipos de Teste",
+            capitulos: ["2", "3"],
+            tipo: "conteudo",
+            topicos: [
+                {
+                    titulo: "Shift-Left e Retrospectivas",
+                    desc: `
+                        <p>Aprofundar no conceito de 'Shift-Left' para encontrar defeitos mais cedo e como usar retrospectivas para melhoria contínua.</p>
+                        <ul>
+                            <li><strong>Shift-Left:</strong> Começar as atividades de teste o mais cedo possível no ciclo de vida. É a aplicação prática do princípio "Testes Antecipados", reduzindo drasticamente o custo de correção de defeitos.</li>
+                            <li><strong>Retrospectivas:</strong> Reuniões para o time refletir sobre o que funcionou, o que não funcionou e como melhorar os processos, incluindo os de teste.</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Níveis vs. Tipos de Teste",
+                    desc: `
+                        <p>Distinguir os 4 Níveis (Componente, Integração, Sistema, Aceite) dos Tipos de Teste (Funcional, Não Funcional, Caixa-Branca, Caixa-Preta).</p>
+                        <ul>
+                            <li><strong>Níveis de Teste (Onde/Quando testamos):</strong>
+                                <ol class="list-decimal pl-5">
+                                    <li><strong>Componente (Unidade):</strong> Testa a menor parte do código.</li>
+                                    <li><strong>Integração:</strong> Testa a interação entre componentes ou sistemas.</li>
+                                    <li><strong>Sistema:</strong> Testa o sistema completo contra os requisitos.</li>
+                                    <li><strong>Aceite:</strong> Valida se o sistema atende às necessidades do negócio e do usuário (UAT, Alfa, Beta).</li>
+                                </ol>
+                            </li>
+                             <li><strong>Tipos de Teste (O que/Como focamos):</strong>
+                                <ul class="list-disc pl-5">
+                                    <li><strong>Funcional:</strong> O que o sistema faz.</li>
+                                    <li><strong>Não Funcional:</strong> Como o sistema funciona (performance, usabilidade, segurança).</li>
+                                    <li><strong>Caixa-Branca:</strong> Baseado na estrutura interna (código).</li>
+                                    <li><strong>Caixa-Preta:</strong> Baseado nos requisitos, sem ver o código.</li>
+                                </ul>
+                            </li>
+                            <li class="action-box">
+                                <h5>Ação:</h5>
+                                <p>Escolha um nível de teste (ex: Teste de Sistema) e liste 3 tipos de teste que seriam relevantes para ele. Isso ajuda a solidificar a diferença.</p>
+                            </li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Confirmação, Regressão e Manutenção",
+                    desc: `
+                        <p>Entender a diferença crucial entre Teste de Confirmação (re-teste) e Teste de Regressão, e os gatilhos para Teste de Manutenção.</p>
+                        <ul>
+                            <li><strong>Teste de Confirmação (Re-teste):</strong> Verifica se uma correção de defeito <strong>realmente resolveu</strong> o problema original.</li>
+                            <li><strong>Teste de Regressão:</strong> Garante que as mudanças (correções ou novas features) <strong>não introduziram novos defeitos</strong> em partes que antes funcionavam. É ideal para automação.</li>
+                            <li><strong>Teste de Manutenção:</strong> Ocorre após o lançamento, acionado por modificações (corretivas, adaptativas, melhorias), migrações ou desativação do sistema.</li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        {
+            dia: 4,
+            titulo: "Teste Estático e Modelagem Caixa-Preta",
+            capitulos: ["3", "4"],
+            tipo: "conteudo",
+            topicos: [
+                {
+                    titulo: "Fundamentos do Teste Estático",
+                    desc: `
+                        <p>Compreender o valor de encontrar defeitos sem executar o código, através de Revisões e Análise Estática.</p>
+                        <ul>
+                            <li><strong>Valor:</strong> Detecção antecipada (mais barato), prevenção de defeitos, melhora da qualidade e compreensão, encontra o que o teste dinâmico não pega (ex: código morto).</li>
+                            <li><strong>Estático vs. Dinâmico:</strong> Estático analisa artefatos (código, docs) sem execução; Dinâmico executa o software para observar falhas.</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Processo de Revisão",
+                    desc: `
+                        <p>Aprender as atividades de um processo de revisão e os diferentes tipos (Informal, Walkthrough, Revisão Técnica, Inspeção).</p>
+                        <ul>
+                            <li><strong>Processo:</strong> Planejamento → Início → Preparação Individual → Reunião → Retrabalho → Acompanhamento.</li>
+                            <li><strong>Tipos (do menos ao mais formal):</strong>
+                                <ol class="list-decimal pl-5">
+                                    <li><strong>Revisão Informal:</strong> Um colega dá uma olhada rápida.</li>
+                                    <li><strong>Walkthrough:</strong> Autor apresenta o documento para obter feedback.</li>
+                                    <li><strong>Revisão Técnica:</strong> Focada em consenso sobre soluções técnicas.</li>
+                                    <li><strong>Inspeção:</strong> A mais formal, com papéis definidos e métricas, para encontrar o máximo de defeitos.</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Técnicas Caixa-Preta: EP e BVA",
+                    desc: `
+                        <p>Aprender Particionamento de Equivalência e Análise de Valor Limite para selecionar dados de teste eficazes.</p>
+                        <ul>
+                            <li><strong>Particionamento de Equivalência (EP):</strong> Divide as entradas em grupos (partições) onde o sistema deve se comportar da mesma forma. Testa-se um valor de cada partição (válida e inválida).</li>
+                            <li><strong>Análise de Valor Limite (BVA):</strong> Complementa o EP, focando em testar os valores nos limites e adjacentes aos limites das partições, onde os erros são mais comuns.</li>
+                            <li class="action-box">
+                                <h5>Ação Prática Intensa:</h5>
+                                <p>Para um campo "Quantidade de Itens" (permitido de 1 a 10), identifique as partições de equivalência, derive casos de teste com EP, e depois derive casos de teste usando BVA de 2 e 3 valores. Compare os resultados.</p>
+                            </li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        {
+            dia: 5,
+            titulo: "Aprofundando em Técnicas",
+            capitulos: ["4"],
+            tipo: "conteudo",
+            topicos: [
+                {
+                    titulo: "Tabela de Decisão",
+                    desc: `
+                        <p>Usar tabelas para modelar e testar regras de negócio complexas com múltiplas condições.</p>
+                        <ul>
+                            <li><strong>Quando Usar:</strong> Quando o comportamento depende de uma combinação de múltiplas condições (vários "SEs").</li>
+                            <li><strong>Como Construir:</strong> Identifique condições (linhas de cima) e ações (linhas de baixo). Cada coluna é uma regra (combinação de condições) que leva a certas ações.</li>
+                            <li><strong>Vantagem:</strong> Garante que todas as combinações de regras de negócio sejam testadas sistematicamente.</li>
+                             <li class="action-box">
+                                <h5>Ação Prática:</h5>
+                                <p>Crie uma tabela de decisão para um sistema de aprovação de empréstimo com 3 condições (renda, score de crédito, empréstimos ativos) e 3 ações possíveis (Aprovar, Rejeitar, Análise Manual).</p>
+                            </li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Teste de Transição de Estado",
+                    desc: `
+                        <p>Modelar e testar sistemas que possuem diferentes estados e mudam entre eles com base em eventos.</p>
+                        <ul>
+                            <li><strong>Quando Usar:</strong> Para testar fluxos de trabalho, máquinas de estado, status de objetos (ex: status de um pedido em um e-commerce).</li>
+                            <li><strong>Componentes:</strong> Estados, Eventos (gatilhos), Transições (mudanças de estado) e Ações.</li>
+                            <li><strong>Modelagem:</strong> Usa um diagrama de transição de estado (visual) ou uma tabela de transição (tabular).</li>
+                            <li><strong>Cobertura:</strong> Casos de teste são sequências de eventos para cobrir todos os estados ou, mais forte, todas as transições válidas.</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Técnicas Caixa-Branca",
+                    desc: `
+                        <p>Entender conceitualmente Cobertura de Instrução (Statement) e Cobertura de Ramificação (Branch/Decision).</p>
+                        <ul>
+                            <li><strong>Cobertura de Instrução (Statement):</strong> Meta é executar cada linha de código executável pelo menos uma vez.</li>
+                            <li><strong>Cobertura de Ramificação (Branch/Decision):</strong> Meta é executar cada resultado possível de cada ponto de decisão (ex: o caminho VERDADEIRO e o FALSO de um IF). É mais rigorosa que a cobertura de instrução.</li>
+                            <li><strong>Valor:</strong> Mede objetivamente o quão completamente o código foi exercitado, ajudando a encontrar código "morto" e falhas lógicas.</li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        {
+            dia: 6,
+            titulo: "Intuição, Colaboração e Gerenciamento",
+            capitulos: ["4", "5"],
+            tipo: "conteudo",
+            topicos: [
+                {
+                    titulo: "Técnicas Baseadas na Experiência",
+                    desc: `
+                        <p>Explorar Suposição de Erros, Teste Exploratório e Teste Baseado em Checklist.</p>
+                        <ul>
+                            <li><strong>Suposição de Erros (Error Guessing):</strong> Usar a intuição e experiência para "adivinhar" onde os erros provavelmente ocorrerão (ex: divisão por zero, campos vazios).</li>
+                            <li><strong>Teste Exploratório:</strong> Processo dinâmico de aprendizado, projeto e execução de testes simultaneamente. Frequentemente estruturado com Cartas de Teste (Test Charters) em sessões de tempo fixo.</li>
+                            <li><strong>Teste Baseado em Checklist:</strong> Usar uma lista predefinida de itens para guiar o teste de forma sistemática.</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Abordagens Colaborativas",
+                    desc: `
+                        <p>Aprender sobre Histórias de Usuário, Critérios de Aceite (Given/When/Then) e ATDD.</p>
+                        <ul>
+                           <li><strong>História de Usuário:</strong> Descrição de uma funcionalidade na perspectiva do usuário. Guiada pelos 3 C's: Cartão, Conversação e Confirmação.</li>
+                           <li><strong>Critérios de Aceite (AC):</strong> As condições que uma história deve satisfazer para ser considerada "pronta". Frequentemente escritos no formato Given/When/Then (BDD).</li>
+                           <li><strong>ATDD (Acceptance Test-Driven Development):</strong> Prática colaborativa de definir os testes de aceite (baseados nos ACs) ANTES do código ser implementado, guiando o desenvolvimento.</li>
+                            <li class="action-box">
+                                <h5>Ação:</h5>
+                                <p>Para a história "Como um cliente, eu quero adicionar um item à minha lista de desejos", escreva 2-3 Critérios de Aceite no formato Given/When/Then.</p>
+                            </li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Planejamento de Teste",
+                    desc: `
+                        <p>Introduzir o Plano de Teste e a diferença entre Critérios de Entrada e Critérios de Saída.</p>
+                        <ul>
+                           <li><strong>Plano de Teste:</strong> Documento que guia o esforço de teste, definindo o que, como, quando e por quem será testado.</li>
+                           <li><strong>Critérios de Entrada:</strong> Pré-condições que devem ser atendidas para que uma fase de teste possa <strong>começar</strong> (ex: ambiente pronto, build estável).</li>
+                           <li><strong>Critérios de Saída:</strong> Condições que definem quando uma fase de teste está <strong>concluída</strong> (ex: X% de cobertura alcançada, nenhum defeito crítico em aberto).</li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        {
+            dia: 7,
+            titulo: "Dominando Gerenciamento e Ferramentas",
+            capitulos: ["5", "6"],
+            tipo: "conteudo",
+            topicos: [
+                {
+                    titulo: "Estimativa e Priorização",
+                    desc: `
+                        <p>Aprender técnicas de estimativa (Planning Poker) e modelos visuais como a Pirâmide de Teste e os Quadrantes de Teste.</p>
+                        <ul>
+                            <li><strong>Estimativa:</strong> Técnicas como Planning Poker (Ágil) ou baseadas em métricas para prever o esforço de teste.</li>
+                            <li><strong>Priorização:</strong> Ordenar a execução de testes com base em risco, cobertura ou prioridade de requisitos.</li>
+                            <li><strong>Pirâmide de Teste:</strong> Modelo que prega muitos testes de unidade (rápidos), alguns de integração/API e poucos de UI (lentos/frágeis).</li>
+                            <li><strong>Quadrantes de Teste:</strong> Modelo que ajuda a pensar em uma abordagem de teste abrangente, classificando testes em 4 quadrantes (Apoia o Time vs. Critica o Produto; Foco em Tecnologia vs. Negócio).</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Gerenciamento de Riscos e Monitoramento",
+                    desc: `
+                        <p>Diferenciar riscos de projeto e de produto, usar a análise de risco para guiar testes e métricas para monitorar o progresso.</p>
+                        <ul>
+                            <li><strong>Risco de Produto:</strong> Risco de falha no software (qualidade). <strong>TESTE</strong> é a principal forma de mitigar esse risco.</li>
+                            <li><strong>Risco de Projeto:</strong> Risco de problemas no gerenciamento do projeto (prazos, recursos).</li>
+                            <li><strong>Monitoramento:</strong> Coletar métricas para acompanhar o progresso (ex: % de casos executados, nº de defeitos abertos).</li>
+                            <li><strong>Relatórios:</strong> Relatório de Progresso (durante) e Relatório de Conclusão (ao final) para comunicar o status aos stakeholders.</li>
+                        </ul>
+                    `
+                },
+                {
+                    titulo: "Gerenciamento de Defeitos e Ferramentas",
+                    desc: `
+                        <p>Entender o ciclo de vida de um defeito (Severidade vs. Prioridade) e as categorias de ferramentas de teste.</p>
+                        <ul>
+                            <li><strong>Relatório de Defeito:</strong> Documento com Título, Passos para Reproduzir, Resultado Esperado vs. Atual, Ambiente, etc.</li>
+                            <li><strong>Severidade vs. Prioridade:</strong>
+                                <ul>
+                                    <li><strong>Severidade:</strong> O impacto do defeito no software.</li>
+                                    <li><strong>Prioridade:</strong> A urgência em corrigir o defeito.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Ferramentas de Teste:</strong> Categorias incluem Gerenciamento de Teste (Jira, TestRail), Automação Funcional (Selenium), Performance (JMeter), Análise Estática (SonarQube), etc.</li>
+                        </ul>
+                    `
+                }
+            ]
+        },
+        {
+            dia: "R1",
+            titulo: "Revisão e Prática 1",
+            capitulos: ["1", "2", "3", "4"],
+            tipo: "revisao",
+            topicos: [
+                {
+                    titulo: "Revisão dos Alicerces",
+                    desc: "<p>Passar por todos os conceitos fundamentais dos Capítulos 1, 2 e 3. Foque em solidificar os 7 Princípios, a diferença entre Níveis e Tipos de teste, e o processo de Revisão.</p>"
+                },
+                {
+                    titulo: "Prática Intensiva de Técnicas",
+                    desc: "<p>Focar em resolver exercícios práticos de Particionamento de Equivalência (EP), Análise de Valor Limite (BVA), Tabela de Decisão e Teste de Transição de Estado. Esta é a parte mais prática da prova.</p>"
+                },
+                {
+                    titulo: "Simulado Parcial",
+                    desc: "<p>Fazer um mini simulado com questões focadas nos capítulos 1-4 para identificar pontos fracos. Analise cada erro para entender a lacuna no conhecimento.</p>"
+                }
+            ]
+        },
+        {
+            dia: "R2",
+            titulo: "Revisão e Prática 2",
+            capitulos: ["5", "6"],
+            tipo: "revisao",
+            topicos: [
+                {
+                    titulo: "Revisão de Gerenciamento e Ferramentas",
+                    desc: "<p>Solidificar os conceitos dos Capítulos 5 e 6. Entenda bem o gerenciamento de riscos, a diferença entre severidade e prioridade, a Pirâmide de Teste, os Quadrantes e os benefícios/riscos da automação.</p>"
+                },
+                {
+                    titulo: "Simulado Completo e Análise",
+                    desc: "<p>Realizar um simulado completo de 40 questões no tempo oficial. Corrigir cada questão, entendendo profundamente por que você acertou ou errou. A análise dos erros é a parte mais importante do estudo nesta fase.</p>"
+                }
+            ]
+        }
+    ]
+};
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- INICIALIZAÇÃO DA APLICAÇÃO ---
-            const daysNav = document.getElementById('days-nav');
-            const contentArea = document.getElementById('content-area');
-            let activeDayIndex = 0;
+document.addEventListener('DOMContentLoaded', () => {
+    const timelineNav = document.getElementById('timeline-nav');
+    const contentPanel = document.getElementById('content-panel');
+    let completedDays = JSON.parse(localStorage.getItem('completedDaysDetailed')) || [];
+    let activeDayIndex = 0;
 
-            // --- FUNÇÕES DE RENDERIZAÇÃO ---
+    const renderTimeline = () => {
+        timelineNav.innerHTML = '';
+        studyPlanData.days.forEach((day, index) => {
+            const isCompleted = completedDays.includes(index);
+            const isActive = index === activeDayIndex;
 
-            // Cria os cards de navegação na barra lateral
-            const renderNav = () => {
-                daysNav.innerHTML = '';
-                studyPlanData.days.forEach((day, index) => {
-                    const isActive = index === activeDayIndex;
-                    const card = document.createElement('div');
-                    card.className = `day-card cursor-pointer p-4 bg-white rounded-lg shadow-sm ${isActive ? 'active bg-indigo-50 border-indigo-600' : 'border-transparent hover:bg-slate-50'}`;
-                    card.dataset.index = index;
-                    
-                    const isReview = typeof day.dia === 'string' && day.dia.startsWith('R');
-                    const dayTypeClass = isReview
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-indigo-100 text-indigo-800';
-                        
-                    card.innerHTML = `
-                        <p class="text-xs font-bold uppercase tracking-wider ${dayTypeClass} inline-block px-2 py-1 rounded">${isReview ? 'Revisão' : `Dia ${day.dia}`}</p>
-                        <h4 class="font-bold text-slate-800 mt-2">${day.titulo}</h4>
-                        <p class="text-sm text-slate-500">${day.foco}</p>
-                    `;
-                    // Adiciona evento de clique para mudar o dia ativo
-                    card.addEventListener('click', () => {
-                        activeDayIndex = index;
-                        renderContent();
-                        renderNav();
-                    });
-                    daysNav.appendChild(card);
-                });
-            };
+            const stepperItem = document.createElement('div');
+            stepperItem.className = `stepper-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`;
+            stepperItem.dataset.index = index;
 
-            // Renderiza o conteúdo principal do dia selecionado
-            const renderContent = () => {
-                const day = studyPlanData.days[activeDayIndex];
-                contentArea.innerHTML = `
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm">
-                        <h2 class="text-3xl lg:text-4xl font-extrabold text-slate-800">${day.titulo}</h2>
-                        <p class="text-md text-slate-500 mt-2 mb-8">Foco principal: ${day.foco}</p>
-                        <div id="accordion-container" class="space-y-4">
-                            ${day.topicos.map((topic, index) => `
-                                <div class="border border-slate-200 rounded-lg overflow-hidden">
-                                    <button class="accordion-button w-full flex justify-between items-center text-left p-4 hover:bg-slate-50 transition-colors" data-target="accordion-${index}">
-                                        <span class="font-semibold text-lg text-slate-700">${topic.titulo}</span>
-                                        <i data-feather="chevron-right" class="accordion-arrow text-slate-500 transition-transform duration-300"></i>
-                                    </button>
-                                    <div id="accordion-${index}" class="accordion-content px-4">
-                                        <div class="pb-4 border-t border-slate-200 pt-4">
-                                            <p class="text-sm font-semibold text-indigo-600 mb-3">Objetivos de Aprendizagem (Syllabus): ${topic.objetivos}</p>
-                                            <div class="prose prose-slate max-w-none text-slate-600">${topic.explicacao}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
+            const dayLabel = day.tipo === 'revisao'
+                ? `<span class="text-xs font-bold py-1 px-2 rounded-full bg-green-100 text-green-700">REVISÃO</span>`
+                : `<span class="text-xs font-bold py-1 px-2 rounded-full bg-blue-100 text-blue-700">DIA ${day.dia}</span>`;
+
+            stepperItem.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex-grow">
+                        ${dayLabel}
+                        <h4 class="font-bold text-gray-800 mt-1">${day.titulo}</h4>
                     </div>
-                `;
-                addAccordionListeners();
-                feather.replace(); // Atualiza os ícones
-            };
-
-            // Adiciona os eventos de clique para os acordeões
-            const addAccordionListeners = () => {
-                document.querySelectorAll('.accordion-button').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const content = document.getElementById(button.dataset.target);
-                        button.classList.toggle('open');
-                        
-                        // Animação de expandir/recolher
-                        if (content.style.maxHeight) {
-                            content.style.maxHeight = null;
-                        } else {
-                            content.style.display = "block";
-                            content.style.maxHeight = content.scrollHeight + "px";
-                        }
-                    });
-                });
-            };
-
-            // --- CHAMADA INICIAL ---
-            // Renderiza a navegação e o conteúdo do primeiro dia ao carregar a página
-            renderNav();
-            renderContent();
+                </div>
+            `;
+            stepperItem.addEventListener('click', () => {
+                activeDayIndex = index;
+                renderAll();
+            });
+            timelineNav.appendChild(stepperItem);
         });
-    </script>
+    };
+
+    const renderContent = () => {
+        const day = studyPlanData.days[activeDayIndex];
+        const isCompleted = completedDays.includes(activeDayIndex);
+
+        let buttonText = isCompleted ? "Desmarcar Conclusão" : "Marcar como Concluído";
+        let buttonClass = isCompleted ? "bg-gray-500 hover:bg-gray-600" : "bg-green-500 hover:bg-green-600";
+        let buttonIcon = isCompleted ? "x-circle" : "check-circle";
+
+        contentPanel.innerHTML = `
+            <div>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-wider text-blue-600">Foco: Capítulo(s) ${day.capitulos.join(', ')}</p>
+                        <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-800 mt-1">${day.tipo === 'revisao' ? '' : `Dia ${day.dia}: `}${day.titulo}</h2>
+                    </div>
+                    <button id="complete-day-btn" class="mt-4 md:mt-0 flex-shrink-0 flex items-center gap-2 ${buttonClass} text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+                        <i data-feather="${buttonIcon}" class="w-5 h-5"></i>
+                        <span>${buttonText}</span>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    ${day.topicos.map(topic => `
+                        <div class="topic-card">
+                            <h4 class="font-bold text-lg text-gray-700">${topic.titulo}</h4>
+                            <div class="text-gray-600 mt-2 leading-relaxed">${topic.desc}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('complete-day-btn').addEventListener('click', () => {
+            if (!completedDays.includes(activeDayIndex)) {
+                completedDays.push(activeDayIndex);
+            } else {
+                completedDays = completedDays.filter(i => i !== activeDayIndex);
+            }
+            localStorage.setItem('completedDaysDetailed', JSON.stringify(completedDays));
+            renderAll();
+        });
+
+        feather.replace();
+    };
+
+    const updateProgressBar = () => {
+        const percentage = Math.round((completedDays.length / studyPlanData.days.length) * 100);
+        const progressBarInner = document.getElementById('progress-bar-inner');
+        progressBarInner.style.width = `${percentage}%`;
+        progressBarInner.textContent = `${percentage}%`;
+    };
+
+    const renderChart = () => {
+        const ctx = document.getElementById('focusChart').getContext('2d');
+        const chapterCounts = {};
+
+        studyPlanData.days.forEach(day => {
+            day.capitulos.forEach(cap => {
+                chapterCounts[cap] = (chapterCounts[cap] || 0) + 1;
+            });
+        });
+
+        const labels = Object.keys(chapterCounts).map(key => `Cap. ${key}: ${studyPlanData.chapters[key]}`);
+        const data = Object.values(chapterCounts);
+
+        if (window.myFocusChart) {
+            window.myFocusChart.destroy();
+        }
+
+        window.myFocusChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Foco por Capítulo',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 11, weight: 'bold' }, color: '#495057' },
+                        ticks: { backdropColor: 'transparent', stepSize: 1 }
+                    }
+                }
+            }
+        });
+    };
+
+    const renderAll = () => {
+        updateProgressBar();
+        renderTimeline();
+        renderContent();
+        if(!window.myFocusChart) { // Render chart only once initially
+             renderChart();
+        }
+    };
+
+    renderAll();
+});
+</script>
+
 </body>
 </html>
